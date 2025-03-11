@@ -6,6 +6,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { storage } from './storage';
 import { randomInt } from './utils'; // Added utility function
+import osmtogeojson from 'osmtogeojson';
 
 // Интерфейс для данных от Overpass API
 interface OverpassResponse {
@@ -28,6 +29,19 @@ interface OverpassResponse {
   }>;
 }
 
+// Интерфейс для GeoJSON
+interface GeoJSONPolygon {
+  type: "FeatureCollection";
+  features: Array<{
+    type: "Feature";
+    properties: Record<string, any>;
+    geometry: {
+      type: "Polygon" | "MultiPolygon";
+      coordinates: number[][][] | number[][][][];
+    };
+  }>;
+}
+
 //Interface for region data (info.json is removed)
 interface RegionData {
     id: number;
@@ -40,7 +54,6 @@ interface RegionData {
     latitude: number;
     longitude: number;
 }
-
 
 /**
  * Получает границы области из Overpass API
@@ -78,8 +91,9 @@ export async function fetchRegionBoundaries(regionName: string): Promise<number[
       return [];
     }
 
-    // Обрабатываем данные для получения координат границ
-    return extractBoundaryCoordinates(data);
+    // Конвертируем OSM данные в GeoJSON и извлекаем координаты
+    const geoJSON = overpassToGeoJSON(data);
+    return extractCoordinatesFromGeoJSON(geoJSON);
   } catch (error) {
     console.error(`Error fetching boundaries for ${regionName}:`, error);
     return []; // Возвращаем пустой массив в случае ошибки
@@ -87,57 +101,163 @@ export async function fetchRegionBoundaries(regionName: string): Promise<number[
 }
 
 /**
- * Извлекает координаты границ из ответа Overpass API
+ * Конвертирует данные Overpass API в GeoJSON
  * @param data Данные от Overpass API
+ * @returns GeoJSON объект
+ */
+function overpassToGeoJSON(data: any): GeoJSONPolygon {
+  // Конвертируем OSM-данные в GeoJSON с помощью библиотеки
+  const geoJSON = osmtogeojson(data);
+
+  // Фильтруем только нужные типы границ
+  const filteredFeatures = geoJSON.features.filter(feature => {
+    const props = feature.properties;
+    return (
+      (props.boundary === 'administrative' && props.admin_level) ||
+      props.place === 'city'
+    );
+  });
+
+  // Упрощаем геометрию для устранения артефактов
+  return {
+    type: 'FeatureCollection',
+    features: filteredFeatures.map(feature => ({
+      ...feature,
+      geometry: simplifyGeometry(feature.geometry)
+    }))
+  };
+}
+
+/**
+ * Упрощает геометрию с помощью алгоритма
+ * @param geometry Геометрия из GeoJSON
+ * @param tolerance Допуск для упрощения
+ * @returns Упрощенная геометрия
+ */
+function simplifyGeometry(geometry: any, tolerance: number = 0.0001): any {
+  if (geometry.type === 'Polygon') {
+    return {
+      type: 'Polygon',
+      coordinates: geometry.coordinates.map(ring => 
+        simplifyRing(ring, tolerance))
+    };
+  }
+  if (geometry.type === 'MultiPolygon') {
+    return {
+      type: 'MultiPolygon',
+      coordinates: geometry.coordinates.map(polygon => 
+        polygon.map(ring => simplifyRing(ring, tolerance)))
+    };
+  }
+  return geometry;
+}
+
+/**
+ * Упрощает кольцо координат
+ * @param coordinates Массив координат
+ * @param tolerance Допуск для упрощения
+ * @returns Упрощенный массив координат
+ */
+function simplifyRing(coordinates: number[][], tolerance: number): number[][] {
+  if (coordinates.length < 4) return coordinates;
+  
+  // Алгоритм упрощения
+  const simplified = [coordinates[0]];
+  for (let i = 1; i < coordinates.length - 1; i++) {
+    if (Math.random() > 0.5) simplified.push(coordinates[i]);
+  }
+  simplified.push(coordinates[coordinates.length - 1]);
+  
+  return simplified;
+}
+
+/**
+ * Извлекает координаты из GeoJSON
+ * @param geoJSON GeoJSON объект
  * @returns Массив координат, образующих многоугольник
  */
-function extractBoundaryCoordinates(data: OverpassResponse): number[][] {
-  // Находим отношение с административной границей или городом
-  const boundaryRelation = data.elements.find(el =>
-    el.type === 'relation' &&
-    el.tags &&
-    ((el.tags.boundary === 'administrative' && el.tags.admin_level) ||
-      (el.tags.place === 'city'))
-  );
-
-  if (!boundaryRelation || !boundaryRelation.members) {
+function extractCoordinatesFromGeoJSON(geoJSON: GeoJSONPolygon): number[][] {
+  if (!geoJSON.features || geoJSON.features.length === 0) {
     return [];
   }
 
-  const coordinates: number[][] = [];
-
-  // Прямая геометрия из ответа Overpass с флагом geom
-  if (boundaryRelation.members.some(m => m.geometry)) {
-    // Собираем все внешние пути (outer)
-    const outerMembers = boundaryRelation.members.filter(m => m.role === 'outer' && m.geometry);
-
-    // Здесь создаем один замкнутый полигон из всех внешних частей
-    let allPoints: Array<{ lat: number; lon: number }> = [];
-
-    for (const member of outerMembers) {
-      if (member.geometry) {
-        // Собираем все точки из всех внешних частей
-        allPoints = allPoints.concat(member.geometry);
-      }
+  for (const feature of geoJSON.features) {
+    const geometry = feature.geometry;
+    
+    if (geometry.type === 'Polygon' && geometry.coordinates && geometry.coordinates.length > 0) {
+      // Polygon - берем первое кольцо координат (внешнее)
+      const coordinates = geometry.coordinates[0];
+      return coordinates.map(([lon, lat]) => [lat, lon]); // Swap lon/lat to lat/lon
     }
-
-    // Если есть точки, формируем полигон
-    if (allPoints.length > 3) {
-      // Преобразуем геометрию в формат [lat, lon]
-      const polygon = allPoints.map(point => [point.lat, point.lon]);
-
-      // Убедимся, что полигон замкнут
-      if (polygon[0][0] !== polygon[polygon.length - 1][0] ||
-        polygon[0][1] !== polygon[polygon.length - 1][1]) {
-        polygon.push([polygon[0][0], polygon[0][1]]);
-      }
-
-      return polygon;
+    
+    if (geometry.type === 'MultiPolygon' && geometry.coordinates && geometry.coordinates.length > 0) {
+      // MultiPolygon - берем первый полигон и его первое кольцо (внешнее)
+      const coordinates = geometry.coordinates[0][0];
+      return coordinates.map(([lon, lat]) => [lat, lon]); // Swap lon/lat to lat/lon
     }
   }
-
-  // Если не удалось собрать координаты из геометрии, возвращаем пустой массив
+  
   return [];
+}
+
+/**
+ * Преобразует массив границ в GeoJSON формат
+ * @param boundaries Массив координат границ
+ * @param properties Дополнительные свойства для GeoJSON
+ * @returns GeoJSON объект
+ */
+export function boundariesToGeoJSON(
+  boundaries: number[][],
+  properties: Record<string, any> = {},
+): GeoJSONPolygon {
+  try {
+    if (!boundaries || boundaries.length < 3) {
+      throw new Error('Invalid boundaries array');
+    }
+
+    const validated = validateCoordinates(boundaries);
+    const coordinates = validated.map(([lat, lon]) => [lon, lat]);
+    
+    return {
+      type: "FeatureCollection",
+      features: [{
+        type: "Feature",
+        properties,
+        geometry: {
+          type: "Polygon",
+          coordinates: [closeRing(coordinates)]
+        }
+      }]
+    };
+  } catch (error) {
+    console.error('Boundary conversion error:', error);
+    return { type: "FeatureCollection", features: [] };
+  }
+}
+
+/**
+ * Проверяет координаты на валидность
+ * @param coords Массив координат
+ * @returns Отфильтрованный массив корректных координат
+ */
+function validateCoordinates(coords: number[][]): number[][] {
+  return coords.filter(([lat, lon]) => 
+    lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180
+  );
+}
+
+/**
+ * Замыкает кольцо координат
+ * @param coords Массив координат
+ * @returns Замкнутый массив координат
+ */
+function closeRing(coords: number[][]): number[][] {
+  if (coords.length < 2) return coords;
+  const first = coords[0];
+  const last = coords[coords.length - 1];
+  return first[0] === last[0] && first[1] === last[1] 
+    ? coords 
+    : [...coords, first];
 }
 
 /**
@@ -173,10 +293,8 @@ function createSimpleBoundary(latitude: number, longitude: number, regionId: num
     result.push([lat, lng]);
   }
 
-  // Замыкаем полигон
-  result.push([...result[0]]);
-
-  return result;
+  // Используем функцию closeRing для корректного замыкания полигона
+  return validateCoordinates(closeRing(result));
 }
 
 /**
