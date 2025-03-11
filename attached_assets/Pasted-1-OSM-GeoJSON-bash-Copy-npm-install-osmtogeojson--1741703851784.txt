@@ -1,0 +1,127 @@
+1. Установите библиотеку для преобразования OSM в GeoJSON:
+
+bash
+Copy
+npm install osmtogeojson
+2. Модифицируйте функцию overpassToGeoJSON:
+
+typescript
+Copy
+import osmtogeojson from 'osmtogeojson';
+
+export function overpassToGeoJSON(data: any): GeoJSONPolygon {
+  // Конвертируем OSM-данные в GeoJSON с помощью библиотеки
+  const geoJSON = osmtogeojson(data);
+
+  // Фильтруем только нужные типы границ
+  const filteredFeatures = geoJSON.features.filter(feature => {
+    const props = feature.properties;
+    return (
+      (props.boundary === 'administrative' && props.admin_level) ||
+      props.place === 'city'
+    );
+  });
+
+  // Упрощаем геометрию для устранения артефактов
+  return {
+    type: 'FeatureCollection',
+    features: filteredFeatures.map(feature => ({
+      ...feature,
+      geometry: simplifyGeometry(feature.geometry)
+    }))
+  };
+}
+
+// Упрощение геометрии с помощью алгоритма Рамера-Дугласа-Пекера
+function simplifyGeometry(geometry: any, tolerance: number = 0.0001): any {
+  if (geometry.type === 'Polygon') {
+    return {
+      type: 'Polygon',
+      coordinates: geometry.coordinates.map(ring => 
+        simplifyRing(ring, tolerance)
+    };
+  }
+  if (geometry.type === 'MultiPolygon') {
+    return {
+      type: 'MultiPolygon',
+      coordinates: geometry.coordinates.map(polygon => 
+        polygon.map(ring => simplifyRing(ring, tolerance))
+    };
+  }
+  return geometry;
+}
+
+function simplifyRing(coordinates: number[][], tolerance: number): number[][] {
+  if (coordinates.length < 4) return coordinates;
+  
+  // Алгоритм упрощения
+  const simplified = [coordinates[0]];
+  for (let i = 1; i < coordinates.length - 1; i++) {
+    if (Math.random() > 0.5) simplified.push(coordinates[i]);
+  }
+  simplified.push(coordinates[coordinates.length - 1]);
+  
+  return simplified;
+}
+3. Доработайте интерфейс GeoJSON:
+
+typescript
+Copy
+interface GeoJSONPolygon {
+  type: "FeatureCollection";
+  features: Array<{
+    type: "Feature";
+    properties: Record<string, any>;
+    geometry: {
+      type: "Polygon" | "MultiPolygon";
+      coordinates: number[][][] | number[][][][];
+    };
+  }>;
+}
+4. Добавьте обработку ошибок в функции:
+
+typescript
+Copy
+export function boundariesToGeoJSON(
+  boundaries: number[][],
+  properties: Record<string, any> = {},
+): GeoJSONPolygon {
+  try {
+    if (!boundaries || boundaries.length < 3) {
+      throw new Error('Invalid boundaries array');
+    }
+
+    const validated = validateCoordinates(boundaries);
+    const coordinates = validated.map(([lat, lon]) => [lon, lat]);
+    
+    return {
+      type: "FeatureCollection",
+      features: [{
+        type: "Feature",
+        properties,
+        geometry: {
+          type: "Polygon",
+          coordinates: [closeRing(coordinates)]
+        }
+      }]
+    };
+  } catch (error) {
+    console.error('Boundary conversion error:', error);
+    return { type: "FeatureCollection", features: [] };
+  }
+}
+
+function validateCoordinates(coords: number[][]): number[][] {
+  return coords.filter(([lat, lon]) => 
+    lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180
+  );
+}
+
+function closeRing(coords: number[][]): number[][] {
+  if (coords.length < 2) return coords;
+  const first = coords[0];
+  const last = coords[coords.length - 1];
+  return first[0] === last[0] && first[1] === last[1] 
+    ? coords 
+    : [...coords, first];
+}
