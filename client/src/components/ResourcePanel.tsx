@@ -50,9 +50,11 @@ export function ResourcePanel() {
           const building = BUILDINGS.find(b => b.id === buildingId);
           if (building && building.resourceProduction) {
             // Check for worker availability before calculating production
-            const totalBuildingsCount = city.buildings.length;
             const totalWorkers = city.population || 0;
-            const hasWorkers = totalWorkers > 0;
+            const requiredWorkers = (building.workers || 0);
+            const allocatedWorkers = Math.min(requiredWorkers, totalWorkers);
+            const hasWorkers = requiredWorkers > 0 ? allocatedWorkers > 0 : true;
+            const efficiency = requiredWorkers > 0 ? (allocatedWorkers / requiredWorkers) * 100 : 100;
             const { type, amount } = building.resourceProduction;
 
             // Расчет производства с учетом доступных рабочих и их количества
@@ -170,7 +172,7 @@ export function ResourcePanel() {
         }
         return sum;
       }, 0);
-      
+
       tooltipItems.push(
         <div key="taxes" className="whitespace-nowrap">
           Налоги: <span className={getProductionColor(taxIncome)}>
@@ -224,25 +226,22 @@ export function ResourcePanel() {
         city.buildings.forEach(buildingId => {
           const building = BUILDINGS.find(b => b.id === buildingId);
           if (building && building.resourceProduction && building.resourceProduction.type === resourceType) {
-            // Check if workers are available for the building
-            const { hasWorkers, availableWorkers, totalBuildingsCount } = checkWorkersAvailability(city);
+            // Проверяем доступность рабочих для этого здания
+            const requiredWorkers = building.workers || 0;
+            const allocatedWorkers = Math.min(requiredWorkers, city.population || 0);
+            const hasWorkers = requiredWorkers > 0 ? allocatedWorkers > 0 : true;
+            const efficiency = requiredWorkers > 0 ? (allocatedWorkers / requiredWorkers) * 100 : 100;
 
-            // Получаем полное значение производства, если есть рабочие
-            const productionAmount = hasWorkers ? building.resourceProduction.amount : 0;
-
-            if (!cityBuildingCounts[buildingId]) {
-              cityBuildingCounts[buildingId] = {
-                count: 1,
-                name: building.name,
-                production: productionAmount,
-                notWorking: !hasWorkers,
-                availableWorkers,
-                totalBuildingsCount
-              };
-            } else {
-              cityBuildingCounts[buildingId].count++;
-              cityBuildingCounts[buildingId].production += productionAmount;
-            }
+            // Добавляем информацию о здании в тултип с данными о рабочих
+            buildingProduction[city.name] = buildingProduction[city.name] || [];
+            buildingProduction[city.name].push({
+              buildingName: building.name,
+              production: building.resourceProduction.amount,
+              requiredWorkers,
+              allocatedWorkers,
+              efficiency,
+              hasWorkers
+            });
           }
         });
 
@@ -250,16 +249,13 @@ export function ResourcePanel() {
         tooltipItems.push(
           <div key={`tooltip-city-${city.id}`} className="mt-1">
             <div className="font-semibold">{city.name}:</div>
-            {Object.entries(cityBuildingCounts).map(([buildingId, info]: [string, any]) => {
-              const building = BUILDINGS.find(b => b.id === buildingId);
-              const hasWorkers = info.availableWorkers >= 0;
-              const actualProduction = hasWorkers ? info.production : 0;
+            {Object.entries(buildingProduction[city.name] || []).map(([buildingId, info]: [string, any]) => {
+              const actualProduction = info.hasWorkers ? info.production : 0;
               return (
                 <div key={`${city.id}-${buildingId}`} className="ml-2">
-                  {info.name} ({info.count}): <span className={getProductionColor(actualProduction)}>
-                    {hasWorkers ? `+${((building?.resourceProduction?.amount || 0) * Math.min(city.population, building?.workers || 1) / (building?.workers || 1)).toFixed(1)}/с` : '+0.0/с'}
+                  {info.buildingName} : <span className={getProductionColor(actualProduction)}>
+                    {info.hasWorkers ? `+${(info.production).toFixed(1)}/с (${info.allocatedWorkers}/${info.requiredWorkers}, ${info.efficiency.toFixed(0)}%)` : '+0.0/с (Нет рабочих)'}
                   </span>
-                  {buildingId === 'farm' && <span className="text-blue-300"> (Рабочих: {Math.min(city.population, 10)}/10)</span>}
                 </div>
               );
             })}
@@ -309,11 +305,10 @@ export function ResourcePanel() {
             const building = BUILDINGS.find(b => b.id === buildingId);
             if (building && building.resourceProduction) {
               // Проверяем доступность рабочих и их количество
-              const totalBuildingsCount = city.buildings.length;
               const totalWorkers = city.population || 0;
-              const hasWorkers = totalWorkers > 0;
-
-              // Получаем параметры производства
+              const requiredWorkers = (building.workers || 0);
+              const allocatedWorkers = Math.min(requiredWorkers, totalWorkers);
+              const hasWorkers = requiredWorkers > 0 ? allocatedWorkers > 0 : true;
               const { type, amount } = building.resourceProduction;
 
               // Расчет производства с учетом доступных рабочих и их количества

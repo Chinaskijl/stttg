@@ -32,7 +32,7 @@ export const BUILDINGS_CONFIG: Record<string, Building> = {
     },
     resourceProduction: {
       type: 'food',
-      amount: 1
+      amount: 5
     },
     workers: 10, // Требуется 10 рабочих для полной эффективности
     maxCount: 5
