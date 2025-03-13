@@ -171,8 +171,6 @@ export const CityPanel: React.FC<CityPanelProps> = ({
         }
         
         const response = await apiRequest('PATCH', `/api/cities/${city.id}/capture`, {
-          captureMethod: 'military'
-        });t apiRequest('PATCH', `/api/cities/${city.id}/capture`, {
           isCapital: false,
           captureMethod: 'military'
         });
