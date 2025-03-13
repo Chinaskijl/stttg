@@ -1,9 +1,9 @@
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-import { getAllBuildings } from '../shared/buildingsConfig';
-import type { Region } from '../shared/regionTypes';
+import fs from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+import { getAllBuildings } from "../shared/buildingsConfig";
+import type { Region } from "../shared/regionTypes";
 
 // Получаем здания из конфигурационного файла
 const BUILDINGS = getAllBuildings();
@@ -29,27 +29,40 @@ async function ensureDataDir() {
 // Функция для генерации доступных зданий
 function generateAvailableBuildings(): string[] {
   return [
-    'house', 'farm', 'market', 'logging_camp', 'gold_mine', 'oil_rig', 
-    'barracks', 'metal_factory', 'steel_factory', 'weapons_factory', 'theater', 'park', 'temple'
+    "house",
+    "farm",
+    "market",
+    "logging_camp",
+    "gold_mine",
+    "oil_rig",
+    "barracks",
+    "metal_factory",
+    "steel_factory",
+    "weapons_factory",
+    "theater",
+    "park",
+    "temple",
   ];
 }
 
 // Функция для генерации фиксированных лимитов зданий
-function generateFixedBuildingLimits(availableBuildings: string[]): Record<string, number> {
+function generateFixedBuildingLimits(
+  availableBuildings: string[],
+): Record<string, number> {
   const limits: Record<string, number> = {
-    'house': 4,
-    'farm': 5,
-    'logging_camp': 3,
-    'market': 2,
-    'gold_mine': 3,
-    'oil_rig': 3,
-    'barracks': 3,
-    'weapons_factory': 2,
-    'steel_factory': 3,
-    'metal_factory': 4,
-    'theater': 2,
-    'park': 3,
-    'temple': 1
+    house: 4,
+    farm: 5,
+    logging_camp: 3,
+    market: 2,
+    gold_mine: 3,
+    oil_rig: 3,
+    barracks: 3,
+    weapons_factory: 2,
+    steel_factory: 3,
+    metal_factory: 4,
+    theater: 2,
+    park: 3,
+    temple: 1,
   };
 
   // Фильтруем только доступные здания
@@ -64,7 +77,6 @@ function generateFixedBuildingLimits(availableBuildings: string[]): Record<strin
 
   return result;
 }
-
 
 // Функция для генерации случайного населения
 function generateRandomPopulation(isLarge: boolean) {
@@ -114,14 +126,14 @@ async function resetGameData() {
       oil: 500,
       metal: 0,
       steel: 0,
-      weapons: 0
+      weapons: 0,
     },
     population: 0,
-    military: 0
+    military: 10000,
   };
 
   // Сохраняем начальное состояние
-  await writeDataFile('game-state.json', initialGameState);
+  await writeDataFile("game-state.json", initialGameState);
 }
 
 async function writeDataFile(filename: string, data: any) {
@@ -156,8 +168,10 @@ class Storage {
         availableBuildings: generateAvailableBuildings(),
         owner: "neutral",
         buildings: [],
-        buildingLimits: generateFixedBuildingLimits(generateAvailableBuildings()),
-        satisfaction: 50 // Устанавливаем начальную удовлетворенность в 50%
+        buildingLimits: generateFixedBuildingLimits(
+          generateAvailableBuildings(),
+        ),
+        satisfaction: 50, // Устанавливаем начальную удовлетворенность в 50%
       },
       {
         id: 2,
@@ -171,8 +185,10 @@ class Storage {
         availableBuildings: generateAvailableBuildings(),
         owner: "neutral",
         buildings: [],
-        buildingLimits: generateFixedBuildingLimits(generateAvailableBuildings()),
-        satisfaction: 50 // Added satisfaction property
+        buildingLimits: generateFixedBuildingLimits(
+          generateAvailableBuildings(),
+        ),
+        satisfaction: 50, // Added satisfaction property
       },
       {
         id: 3,
@@ -186,8 +202,10 @@ class Storage {
         availableBuildings: generateAvailableBuildings(),
         owner: "neutral",
         buildings: [],
-        buildingLimits: generateFixedBuildingLimits(generateAvailableBuildings()),
-        satisfaction: 50 // Added satisfaction property
+        buildingLimits: generateFixedBuildingLimits(
+          generateAvailableBuildings(),
+        ),
+        satisfaction: 50, // Added satisfaction property
       },
       {
         id: 4,
@@ -201,8 +219,10 @@ class Storage {
         availableBuildings: generateAvailableBuildings(),
         owner: "neutral",
         buildings: [],
-        buildingLimits: generateFixedBuildingLimits(generateAvailableBuildings()),
-        satisfaction: 50 // Added satisfaction property
+        buildingLimits: generateFixedBuildingLimits(
+          generateAvailableBuildings(),
+        ),
+        satisfaction: 50, // Added satisfaction property
       },
       {
         id: 5,
@@ -216,9 +236,11 @@ class Storage {
         availableBuildings: generateAvailableBuildings(),
         owner: "neutral",
         buildings: [],
-        buildingLimits: generateFixedBuildingLimits(generateAvailableBuildings()),
-        satisfaction: 50 // Added satisfaction property
-      }
+        buildingLimits: generateFixedBuildingLimits(
+          generateAvailableBuildings(),
+        ),
+        satisfaction: 50, // Added satisfaction property
+      },
     ];
 
     this.cities = regions;
@@ -230,9 +252,12 @@ class Storage {
   }
 
   // Обновление области с проверкой лимитов зданий
-  async updateRegion(id: number, updates: Partial<Region>): Promise<Region | null> {
+  async updateRegion(
+    id: number,
+    updates: Partial<Region>,
+  ): Promise<Region | null> {
     try {
-      const index = this.cities.findIndex(city => city.id === id);
+      const index = this.cities.findIndex((city) => city.id === id);
 
       if (index === -1) {
         return null;
@@ -242,33 +267,47 @@ class Storage {
 
       // Добавляем отладочную информацию
       if (updates.satisfaction !== undefined) {
-        console.log(`DEBUG: Updating region ${id} satisfaction from ${currentRegion.satisfaction} to ${updates.satisfaction}`);
+        console.log(
+          `DEBUG: Updating region ${id} satisfaction from ${currentRegion.satisfaction} to ${updates.satisfaction}`,
+        );
       }
 
       if (updates.owner !== undefined) {
-        console.log(`DEBUG: Updating region ${id} owner from ${currentRegion.owner} to ${updates.owner}`);
+        console.log(
+          `DEBUG: Updating region ${id} owner from ${currentRegion.owner} to ${updates.owner}`,
+        );
 
         // При смене владельца НЕ сбрасываем удовлетворенность, если она явно не указана
-        if (updates.satisfaction === undefined && updates.owner === 'player' && currentRegion.owner === 'neutral') {
-          console.log(`DEBUG: Owner changed to player, keeping current satisfaction at ${currentRegion.satisfaction}%`);
+        if (
+          updates.satisfaction === undefined &&
+          updates.owner === "player" &&
+          currentRegion.owner === "neutral"
+        ) {
+          console.log(
+            `DEBUG: Owner changed to player, keeping current satisfaction at ${currentRegion.satisfaction}%`,
+          );
         }
       }
 
       // Запрещаем подозрительные обновления удовлетворенности (с 0% до ~50%)
-      if (currentRegion.satisfaction === 0 && updates.satisfaction !== undefined) {
+      if (
+        currentRegion.satisfaction === 0 &&
+        updates.satisfaction !== undefined
+      ) {
         if (updates.satisfaction > 45 && updates.satisfaction < 50) {
-          console.log(`⚠️ BLOCKED suspicious satisfaction update from 0% to ${updates.satisfaction}%`);
+          console.log(
+            `⚠️ BLOCKED suspicious satisfaction update from 0% to ${updates.satisfaction}%`,
+          );
           updates.satisfaction = 0; // Сохраняем 0%
         }
       }
-
 
       // Если обновляем здания, проверяем лимиты
       if (updates.buildings) {
         const buildingCounts: Record<string, number> = {};
 
         // Считаем количество каждого типа зданий
-        updates.buildings.forEach(building => {
+        updates.buildings.forEach((building) => {
           buildingCounts[building] = (buildingCounts[building] || 0) + 1;
         });
 
@@ -277,7 +316,9 @@ class Storage {
           for (const [buildingId, count] of Object.entries(buildingCounts)) {
             const limit = currentRegion.buildingLimits[buildingId] || 999;
             if (count > limit) {
-              console.error(`Building limit exceeded for ${buildingId}. Limit: ${limit}, Attempted: ${count}`);
+              console.error(
+                `Building limit exceeded for ${buildingId}. Limit: ${limit}, Attempted: ${count}`,
+              );
               return null;
             }
           }
@@ -289,7 +330,7 @@ class Storage {
 
       return updatedRegion;
     } catch (error) {
-      console.error('Error updating region:', error);
+      console.error("Error updating region:", error);
       return null;
     }
   }
@@ -300,7 +341,7 @@ class Storage {
       this.cities = [...regions];
       return true;
     } catch (error) {
-      console.error('Error updating all regions:', error);
+      console.error("Error updating all regions:", error);
       return false;
     }
   }
@@ -310,7 +351,10 @@ class Storage {
     return this.getRegions();
   }
 
-  async updateCity(id: number, updates: Partial<Region>): Promise<Region | null> {
+  async updateCity(
+    id: number,
+    updates: Partial<Region>,
+  ): Promise<Region | null> {
     console.log(`DEBUG: Updating city ${id} with:`, JSON.stringify(updates));
     return this.updateRegion(id, updates);
   }
@@ -325,13 +369,13 @@ class Storage {
         return this.gameState;
       }
 
-      const data = await fs.readFile(GAME_STATE_FILE, 'utf8');
+      const data = await fs.readFile(GAME_STATE_FILE, "utf8");
       this.gameState = JSON.parse(data);
       this.gameStateLastLoaded = now;
 
       return this.gameState;
     } catch (error) {
-      console.error('Error reading game state:', error);
+      console.error("Error reading game state:", error);
       return null;
     }
   }
@@ -344,7 +388,7 @@ class Storage {
       this.gameStateLastLoaded = Date.now();
       return true;
     } catch (error) {
-      console.error('Error setting game state:', error);
+      console.error("Error setting game state:", error);
       return false;
     }
   }
@@ -362,7 +406,7 @@ class Storage {
 
   // Удаление перемещения армии
   async removeArmyTransfer(id: number) {
-    this.armyTransfers = this.armyTransfers.filter(t => t.id !== id);
+    this.armyTransfers = this.armyTransfers.filter((t) => t.id !== id);
     return true;
   }
 
