@@ -160,7 +160,7 @@ export const CityPanel: React.FC<CityPanelProps> = ({
         console.log('Military strength:', gameState.military);
         console.log('Required strength:', city.maxPopulation / 4);
         const requiredMilitary = Math.ceil(city.maxPopulation / 4);
-        
+
         if (gameState.military < requiredMilitary) {
           toast({
             title: 'Недостаточно военных',
@@ -169,22 +169,29 @@ export const CityPanel: React.FC<CityPanelProps> = ({
           });
           return;
         }
-        
+
         const response = await apiRequest('PATCH', `/api/cities/${city.id}/capture`, {
           isCapital: false,
           captureMethod: 'military'
         });
-        
+
         if (response.success) {
           console.log('City captured successfully using military');
           toast({
             title: 'Успех!',
             description: 'Город захвачен военной силой!',
           });
+        } else if (response.error) {
+          console.error('Failed to capture city with military:', response.error);
+          toast({
+            title: 'Ошибка захвата',
+            description: response.error || 'Недостаточно ресурсов для захвата',
+            variant: 'destructive',
+          });
         }
       } else if (method === 'influence') {
         const requiredInfluence = Math.ceil(city.maxPopulation / 500);
-        
+
         if (!gameState.resources.influence || gameState.resources.influence < requiredInfluence) {
           toast({
             title: 'Недостаточно влияния',
@@ -193,17 +200,24 @@ export const CityPanel: React.FC<CityPanelProps> = ({
           });
           return;
         }
-        
+
         const response = await apiRequest('PATCH', `/api/cities/${city.id}/capture`, {
           isCapital: false,
           captureMethod: 'influence'
         });
-        
+
         if (response.success) {
           console.log('City captured successfully using influence');
           toast({
             title: 'Успех!',
             description: 'Город присоединен мирным путем!',
+          });
+        } else if (response.error) {
+          console.error('Failed to capture city with influence:', response.error);
+          toast({
+            title: 'Ошибка захвата',
+            description: response.error || 'Недостаточно ресурсов для захвата',
+            variant: 'destructive',
           });
         }
       } else {
@@ -214,11 +228,11 @@ export const CityPanel: React.FC<CityPanelProps> = ({
       await queryClient.invalidateQueries({ queryKey: ['/api/cities'] });
       await queryClient.invalidateQueries({ queryKey: ['/api/game-state'] });
     } catch (error) {
-      console.error('Failed to capture:', error);
+      console.error('Error capturing city:', error);
       toast({
-        title: "Ошибка захвата",
-        description: error instanceof Error ? error.message : "Не удалось захватить город",
-        variant: "destructive"
+        title: 'Ошибка захвата',
+        description: error instanceof Error ? error.message : 'Произошла неизвестная ошибка',
+        variant: 'destructive',
       });
     }
   };
@@ -494,7 +508,7 @@ export const CityPanel: React.FC<CityPanelProps> = ({
                     {hasCapital && <p className="text-xs text-center">Будет использовано {Math.ceil(city.maxPopulation / 4)} военных</p>}
 
                     <Button
-                      onClick={handleCaptureWithInfluence}
+                      onClick={() => handleCapture('influence')}
                       className="w-full mt-2"
                       variant="outline"
                       disabled={hasCapital && gameState.resources.influence < Math.ceil(city.maxPopulation / 500)}
