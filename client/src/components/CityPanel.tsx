@@ -499,8 +499,9 @@ export const CityPanel: React.FC<CityPanelProps> = ({
                   </p>
                   <div className="space-y-2">
                     <Button
-                      onClick={handleCapture}
+                      onClick={() => handleCapture('military')}
                       className="w-full"
+                      variant="destructive"
                       disabled={hasCapital && gameState.military < Math.ceil(city.maxPopulation / 4)}
                     >
                       {hasCapital ? "Военный захват" : "Выбрать столицей"}
@@ -864,7 +865,7 @@ export const CityPanel: React.FC<CityPanelProps> = ({
                                 </span>
                               )}
 
-                              {/* Отображение производства военной мощи */}
+                              {/*                              {/* Отображение производства военной мощи */}
                               {building.military?.production > 0 && (
                                 <span className="text-xs text-green-600 mt-1">
                                   🪖 +{building.military.production}/сек
