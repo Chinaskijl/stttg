@@ -206,15 +206,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
           gameState,
           message: 'Столица выбрана успешно!'
         });
+      } else if (captureMethod === 'influence') {
+        // Мирный захват через влияние
+        const requiredInfluence = Math.ceil(city.maxPopulation / 500);
+        
+        if (!gameState.resources.influence || gameState.resources.influence < requiredInfluence) {
+          return res.status(400).json({ 
+            error: 'Not enough influence',
+            required: requiredInfluence,
+            available: gameState.resources.influence || 0
+          });
+        }
+        
+        // Уменьшаем влияние
+        gameState.resources.influence -= requiredInfluence;
+        await storage.setGameState(gameState);
+        
+        // Захватываем город
+        const capturedCity = await storage.updateCity(cityId, { 
+          owner: 'player',
+          population: Math.ceil(city.maxPopulation * 0.1), // 10% населения при мирном захвате
+          satisfaction: 75 // Более высокое начальное значение удовлетворенности при мирном захвате
+        });
+        
+        res.json({ 
+          success: true,
+          city: capturedCity,
+          gameState,
+          message: 'Город присоединен мирным путем!'
+        });
       } else {
-        // Обычный захват города
-        // Проверяем, есть ли у нас достаточно военных для захвата
+        // Военный захват
         const requiredMilitary = Math.ceil(city.maxPopulation / 4);
 
         if (gameState.military < requiredMilitary) {
           return res.status(400).json({ 
             error: 'Not enough military units',
-            required: requiredMilitary
+            required: requiredMilitary,
+            available: gameState.military || 0
           });
         }
 
@@ -232,7 +261,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.json({ 
           success: true,
           city: capturedCity,
-          gameState
+          gameState,
+          message: 'Город захвачен военной силой!'
         });
       }
     } catch (error) {

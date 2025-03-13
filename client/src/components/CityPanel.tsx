@@ -152,19 +152,60 @@ export const CityPanel: React.FC<CityPanelProps> = ({
           isCapital: true
         });
         console.log('Capital city captured successfully');
-      } else if (method === 'military' && gameState.military >= city.maxPopulation / 4) {
+        toast({
+          title: 'Успех!',
+          description: 'Столица выбрана успешно!',
+        });
+      } else if (method === 'military') {
         console.log('Military strength:', gameState.military);
         console.log('Required strength:', city.maxPopulation / 4);
-        await apiRequest('PATCH', `/api/cities/${city.id}/capture`, {
-          isCapital: false
-        });
-        console.log('City captured successfully');
-      } else if (method === 'influence' && gameState.resources.influence >= Math.ceil(city.maxPopulation / 500)) {
-        await apiRequest('PATCH', `/api/cities/${city.id}/capture`, {
+        const requiredMilitary = Math.ceil(city.maxPopulation / 4);
+        
+        if (gameState.military < requiredMilitary) {
+          toast({
+            title: 'Недостаточно военных',
+            description: `Требуется ${requiredMilitary} военных единиц`,
+            variant: 'destructive',
+          });
+          return;
+        }
+        
+        const response = await apiRequest('PATCH', `/api/cities/${city.id}/capture`, {
           isCapital: false,
-          method: 'influence'
+          captureMethod: 'military'
         });
-        console.log('City captured successfully using influence');
+        
+        if (response.success) {
+          console.log('City captured successfully using military');
+          toast({
+            title: 'Успех!',
+            description: 'Город захвачен военной силой!',
+          });
+        }
+      } else if (method === 'influence') {
+        const requiredInfluence = Math.ceil(city.maxPopulation / 500);
+        
+        if (!gameState.resources.influence || gameState.resources.influence < requiredInfluence) {
+          toast({
+            title: 'Недостаточно влияния',
+            description: `Требуется ${requiredInfluence} очков влияния`,
+            variant: 'destructive',
+          });
+          return;
+        }
+        
+        const response = await apiRequest('PATCH', `/api/cities/${city.id}/capture`, {
+          isCapital: false,
+          captureMethod: 'influence'
+        });
+        
+        if (response.success) {
+          console.log('City captured successfully using influence');
+          toast({
+            title: 'Успех!',
+            description: 'Город присоединен мирным путем!',
+          });
+        }
       } else {
         throw new Error('Insufficient resources for capture.');
       }
