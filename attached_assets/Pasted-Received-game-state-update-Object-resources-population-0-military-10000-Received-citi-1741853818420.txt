@@ -1,0 +1,68 @@
+Received game state update: 
+Object {resources: {…}, population: 0, military: 10000}
+Received cities update: 
+(5) [{…}, {…}, {…}, {…}, {…}]
+Received game state update: 
+Object {resources: {…}, population: 0, military: 10000}
+Received cities update: 
+(5) [{…}, {…}, {…}, {…}, {…}]
+Received game state update: 
+Object {resources: {…}, population: 0, military: 10000}
+Received cities update: 
+(5) [{…}, {…}, {…}, {…}, {…}]
+Received game state update: 
+Object {resources: {…}, population: 0, military: 10000}
+Received cities update: 
+(5) [{…}, {…}, {…}, {…}, {…}]
+Received game state update: 
+Object {resources: {…}, population: 0, military: 10000}
+Received cities update: 
+(5) [{…}, {…}, {…}, {…}, {…}]
+Received game state update: 
+Object {resources: {…}, population: 0, military: 10000}
+Received cities update: 
+(5) [{…}, {…}, {…}, {…}, {…}]
+Received game state update: 
+Object {resources: {…}, population: 0, military: 10000}
+Received cities update: 
+(5) [{…}, {…}, {…}, {…}, {…}]
+Received game state update: 
+Object {resources: {…}, population: 0, military: 10000}
+Received cities update: 
+(5) [{…}, {…}, {…}, {…}, {…}]
+Received game state update: 
+Object {resources: {…}, population: 0, military: 10000}
+Received cities update: 
+(5) [{…}, {…}, {…}, {…}, {…}]
+Received game state update: 
+Object {resources: {…}, population: 0, military: 10000}
+Received cities update: 
+(5) [{…}, {…}, {…}, {…}, {…}]
+Received game state update: 
+Object {resources: {…}, population: 0, military: 10000}
+Received cities update: 
+(5) [{…}, {…}, {…}, {…}, {…}]
+Received game state update: 
+Object {resources: {…}, population: 0, military: 10000}
+Received cities update: 
+(5) [{…}, {…}, {…}, {…}, {…}]
+Attempting to capture city 1 using method: [object Object]
+Capital city captured successfully
+Received game state update: 
+Object {resources: {…}, population: 0, military: 10000}
+Received cities update: 
+(5) [{…}, {…}, {…}, {…}, {…}]
+Received game state update: 
+Object {resources: {…}, population: 0, military: 10000}
+Received cities update: 
+(5) [{…}, {…}, {…}, {…}, {…}]
+Cities updated: 
+(5) [{…}, {…}, {…}, {…}, {…}]
+Attempting to capture city 5 using method: [object Object]
+Error capturing city: 
+Error {}
+message: "Insufficient resources for capture."
+stack: "Error: Insufficient resources for capture.↵ at handleCapture (https://e3c57006-6f28-4c8f-9671-135e07646a6f-00-vq4uwbzw9ncb.pike.replit.dev:5000/src/components/CityPanel.tsx:228:15)↵ at HTMLUnknownElement.callCallback2 (https://e3c57006-6f28-4c8f-9671-135e07646a6f-00-vq4uwbzw9ncb.pike.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WERSD76P.js?v=c0f929be:3674:22)↵ at Object.invokeGuardedCallbackDev (https://e3c57006-6f28-4c8f-9671-135e07646a6f-00-vq4uwbzw9ncb.pike.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WERSD76P.js?v=c0f929be:3699:24)↵ at invokeGuardedCallback (https://e3c57006-6f28-4c8f-9671-135e07646a6f-00-vq4uwbzw9ncb.pike.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WERSD76P.js?v=c0f929be:3733:39)↵ at invokeGuardedCallbackAndCatchFirstError (https://e3c57006-6f28-4c8f-9671-135e07646a6f-00-vq4uwbzw9ncb.pike.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WERSD76P.js?v=c0f929be:3736:33)↵ at executeDispatch (https://e3c57006-6f28-4c8f-9671-135e07646a6f-00-vq4uwbzw9ncb.pike.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WERSD76P.js?v=c0f929be:7014:11)↵ at processDispatchQueueItemsInOrder (https://e3c57006-6f28-4c8f-9671-135e07646a6f-00-vq4uwbzw9ncb.pike.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WERSD76P.js?v=c0f929be:7034:15)↵ at processDispatchQueue (https://e3c57006-6f28-4c8f-9671-135e07646a6f-00-vq4uwbzw9ncb.pike.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WERSD76P.js?v=c0f929be:7043:13)↵ at dispatchEventsForPlugins (https://e3c57006-6f28-4c8f-9671-135e07646a6f-00-vq4uwbzw9ncb.pike.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WERSD76P.js?v=c0f929be:7051:11)↵ at https://e3c57006-6f28-4c8f-9671-135e07646a6f-00-vq4uwbzw9ncb.pike.replit.dev:5000/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WERSD76P.js?v=c0f929be:7174:20"
+get stack: ƒ ()
+set stack: ƒ ()
+[[Prototype]]: Object
