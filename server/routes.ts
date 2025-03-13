@@ -191,6 +191,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: 'City not found' });
       }
 
+      console.log(`Attempting to capture city ${cityId} using method: ${captureMethod}`);
+      console.log(`Game state:`, gameState);
+      console.log(`Military available: ${gameState.military}`);
+
       if (isCapital) {
         // Это первый выбор столицы - захватываем без военных
         const capturedCity = await storage.updateCity(cityId, { 
@@ -238,6 +242,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         // Военный захват
         const requiredMilitary = Math.ceil(city.maxPopulation / 4);
+        
+        console.log(`Required military: ${requiredMilitary}, Available: ${gameState.military}`);
 
         if (gameState.military < requiredMilitary) {
           return res.status(400).json({ 
@@ -251,7 +257,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const capturedCity = await storage.updateCity(cityId, { 
           owner: 'player',
           population: 0, // Устанавливаем начальное население в 0
-          satisfaction: 50 // Устанавливаем начальное значение удовлетворенности
+          satisfaction: 50, // Устанавливаем начальное значение удовлетворенности
+          military: Math.floor(requiredMilitary * 0.5) // Оставляем часть военных в городе
         });
 
         // Уменьшаем количество военных
