@@ -25,16 +25,46 @@ import { MarketPriceChartSelector } from '@/components/Market/MarketPriceChartSe
 import { MarketListings } from '@/components/Market/MarketListings';
 import { MarketTransactions } from '@/components/Market/MarketTransactions';
 import { MarketPanel } from "@/components/Market/MarketPanel";
+import { useState } from 'react';
 
 const MarketCreatePanel = ({ onClose, open }) => {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {/* Левая панель - создание лота */}
-      <div className="md:col-span-1">
-        <MarketCreateListing onSuccess={handleListingCreated} />
-          </div>
+  const [selectedResource, setSelectedResource] = useState('');
+  
+  const handleListingCreated = () => {
+    console.log('Лот успешно создан');
+  };
 
-          {/* Средняя панель - графики цен */}
+  const fetchGameState = () => {
+    console.log("Fetching game state...");
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[2000]">
+      <div className="bg-white rounded-lg p-6 w-3/4 max-w-5xl max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold">Рынок ресурсов</h1>
+          <button onClick={onClose} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg">
+            Закрыть
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="md:col-span-1">
+            <MarketCreateListing onSuccess={handleListingCreated} />
+          </div>
+          
+          <div className="md:col-span-1">
+            <MarketPriceChartSelector onResourceSelect={setSelectedResource} />
+          </div>
+        </div>
+
+        <div className="mt-6">
+          <MarketListings selectedResource={selectedResource} onListingPurchased={fetchGameState} />
+        </div>
+      </div>
+    </div>
+  );
+};
           <div className="md:col-span-1">
             <MarketPriceChartSelector onResourceSelect={setSelectedResource} excludeResource="gold"/> {/* Передаем функцию для установки выбранного ресурса */}
           </div>
