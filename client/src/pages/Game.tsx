@@ -29,7 +29,7 @@ import { useState } from 'react';
 
 const MarketCreatePanel = ({ onClose, open }) => {
   const [selectedResource, setSelectedResource] = useState('');
-  
+
   const handleListingCreated = () => {
     console.log('Лот успешно создан');
   };
@@ -52,24 +52,14 @@ const MarketCreatePanel = ({ onClose, open }) => {
           <div className="md:col-span-1">
             <MarketCreateListing onSuccess={handleListingCreated} />
           </div>
-          
+
           <div className="md:col-span-1">
-            <MarketPriceChartSelector onResourceSelect={setSelectedResource} excludeResource="gold" />
+            <MarketPriceChartSelector onResourceSelect={setSelectedResource} excludeResource="gold"/>
           </div>
         </div>
 
         <div className="mt-6">
           <MarketListings selectedResource={selectedResource} onListingPurchased={fetchGameState} />
-        </div>
-      </div>
-    </div>
-  );
-};
-        </div>
-
-        {/* Нижняя панель - список лотов */}
-        <div className="mt-6">
-          <MarketListings selectedResource={selectedResource} onListingPurchased={() => fetchGameState()} /> {/* Передаем выбранный ресурс в компонент списка лотов */}
         </div>
       </div>
     </div>
