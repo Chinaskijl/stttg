@@ -6,6 +6,7 @@ import { CityPanel } from '@/components/CityPanel';
 import { useGameStore } from '@/lib/store';
 import type { City, GameState } from '@shared/schema';
 import { BUILDINGS } from '@/lib/game';
+import { AlliancePanel } from "@/components/Alliance/AlliancePanel";
 
 const MarketButton = ({ onOpenMarket }) => (
   <button 
@@ -64,8 +65,9 @@ const MarketCreatePanel = ({ onClose, open }) => {
   );
 };
 
-const GameButtons = ({ onOpenMarket }) => (
+const GameButtons = ({ onOpenMarket, onOpenAlliance }) => (
   <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-[1000]">
+    <button onClick={onOpenAlliance} className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg">Альянсы</button>
     <button onClick={onOpenMarket} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-lg flex items-center space-x-2">
       <span>💰</span>
       <span>Открыть рынок</span>
@@ -78,6 +80,7 @@ export default function Game() {
   const { setCities, setGameState } = useGameStore();
   const queryClient = useQueryClient();
   const [isMarketOpen, setIsMarketOpen] = useState(false);
+  const [isAllianceOpen, setIsAllianceOpen] = useState(false);
 
   const { data: cities } = useQuery<City[]>({
     queryKey: ['/api/cities']
@@ -157,9 +160,11 @@ export default function Game() {
       <ResourcePanel />
       {selectedCity && <CityPanel />}
       <GameButtons 
-        onOpenMarket={() => setIsMarketOpen(true)} 
+        onOpenMarket={() => setIsMarketOpen(true)}
+        onOpenAlliance={() => setIsAllianceOpen(true)}
       />
       <MarketPanel open={isMarketOpen} onClose={() => setIsMarketOpen(false)} />
+      <AlliancePanel open={isAllianceOpen} onClose={() => setIsAllianceOpen(false)} />
     </div>
   );
 }
