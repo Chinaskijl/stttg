@@ -25,7 +25,6 @@ import { MarketPriceChartSelector } from '@/components/Market/MarketPriceChartSe
 import { MarketListings } from '@/components/Market/MarketListings';
 import { MarketTransactions } from '@/components/Market/MarketTransactions';
 import { MarketPanel } from "@/components/Market/MarketPanel";
-import { useState } from 'react';
 
 const MarketCreatePanel = ({ onClose, open }) => {
   const [selectedResource, setSelectedResource] = useState('');
