@@ -6,6 +6,7 @@ import { CityPanel } from '@/components/CityPanel';
 import { useGameStore } from '@/lib/store';
 import type { City, GameState } from '@shared/schema';
 import { BUILDINGS } from '@/lib/game';
+import { AlliancePanel } from "@/components/Alliance/AlliancePanel";
 
 const MarketButton = ({ onOpenMarket }) => (
   <button 
@@ -23,6 +24,7 @@ import { MarketPriceChart } from '@/components/Market/MarketPriceChart';
 import { MarketPriceChartSelector } from '@/components/Market/MarketPriceChartSelector';
 import { MarketListings } from '@/components/Market/MarketListings';
 import { MarketTransactions } from '@/components/Market/MarketTransactions';
+import { MarketPanel } from "@/components/Market/MarketPanel";
 
 const MarketPanel = ({ open, onClose }) => {
   // Обработчик успешного создания лота
