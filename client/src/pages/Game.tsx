@@ -6,7 +6,7 @@ import { CityPanel } from '@/components/CityPanel';
 import { useGameStore } from '@/lib/store';
 import type { City, GameState } from '@shared/schema';
 import { BUILDINGS } from '@/lib/game';
-import { AlliancePanel } from "@/components/Alliance/AlliancePanel";
+//import { AlliancePanel } from "@/components/Alliance/AlliancePanel"; //Removed
 
 const MarketButton = ({ onOpenMarket }) => (
   <button 
@@ -164,7 +164,7 @@ export default function Game() {
         onOpenAlliance={() => setIsAllianceOpen(true)} 
       />
       <MarketPanel open={isMarketOpen} onClose={() => setIsMarketOpen(false)} />
-      <AlliancePanel open={isAllianceOpen} onClose={() => setIsAllianceOpen(false)} />
+      {/* <AlliancePanel open={isAllianceOpen} onClose={() => setIsAllianceOpen(false)} /> */} {/*Removed */}
     </div>
   );
 }
