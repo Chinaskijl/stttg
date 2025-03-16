@@ -78,29 +78,13 @@ const MarketPanel = ({ open, onClose }) => {
   );
 };
 
-const AlliancePanel = ({ open, onClose }) => {
-  if (!open) {
-    return null;
-  }
-  return (
-    <div className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[2000] transition-opacity ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-      <div className="bg-white rounded-lg p-6 w-1/2">
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold">Альянсы</h1>
-          <button onClick={onClose} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg">
-            Закрыть
-          </button>
-        </div>
-        <p>Здесь будет информация об альянсах</p>
-      </div>
-    </div>
-  );
-};
-
 const GameButtons = ({ onOpenMarket, onOpenAlliance }) => (
-  <div className="fixed bottom-4 right-4 flex flex-col space-y-2">
+  <div className="fixed bottom-4 right-4 flex flex-col space-y-2 z-[1000]">
     <button onClick={onOpenAlliance} className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg">Альянсы</button>
-    <MarketButton onOpenMarket={onOpenMarket}/>
+    <button onClick={onOpenMarket} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-lg flex items-center space-x-2">
+      <span>💰</span>
+      <span>Открыть рынок</span>
+    </button>
   </div>
 );
 
@@ -184,7 +168,7 @@ export default function Game() {
   const { selectedCity } = useGameStore();
 
   return (
-    <div className="relative">
+    <div className="relative h-screen">
       <Map />
       <ResourcePanel />
       {selectedCity && <CityPanel />}
