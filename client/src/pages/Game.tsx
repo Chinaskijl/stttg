@@ -24,10 +24,14 @@ import { MarketPriceChart } from '@/components/Market/MarketPriceChart';
 import { MarketPriceChartSelector } from '@/components/Market/MarketPriceChartSelector';
 import { MarketListings } from '@/components/Market/MarketListings';
 import { MarketTransactions } from '@/components/Market/MarketTransactions';
-import { MarketPanel } from "@/components/Market/MarketPanel";-1 md:grid-cols-2 gap-6">
-          {/* Левая панель - создание лота */}
-          <div className="md:col-span-1">
-            <MarketCreateListing onSuccess={handleListingCreated} />
+import { MarketPanel } from "@/components/Market/MarketPanel";
+
+const MarketCreatePanel = ({ onClose, open }) => {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Левая панель - создание лота */}
+      <div className="md:col-span-1">
+        <MarketCreateListing onSuccess={handleListingCreated} />
           </div>
 
           {/* Средняя панель - графики цен */}
