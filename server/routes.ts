@@ -5,6 +5,7 @@ import { WebSocket, WebSocketServer } from "ws";
 import { gameLoop } from "./gameLoop";
 import { BUILDINGS } from "../client/src/lib/game";
 import { market } from "./market";
+import { allianceManager } from "./alliance";
 import { updateAllCityBoundaries, updateCityBoundary, updateAllRegionBoundaries } from "./osmService";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -857,6 +858,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+
+  // Alliance routes
+  app.post("/api/alliances", async (req, res) => {
+    try {
+      const { name, accessType, goal } = req.body;
+      
+      // Check if player has enough resources
+      const gameState = await storage.getGameState();
+      if (!gameState.resources.gold || gameState.resources.gold < 1000 ||
+          !gameState.resources.steel || gameState.resources.steel < 500) {
+        return res.status(400).json({ message: 'Недостаточно ресурсов' });
+      }
+
+      // Deduct resources
+      gameState.resources.gold -= 1000;
+      gameState.resources.steel -= 500;
+      await storage.setGameState(gameState);
+
+      const alliance = await allianceManager.createAlliance({ name, accessType, goal });
+      res.json(alliance);
+    } catch (error) {
+      console.error('Error creating alliance:', error);
+      res.status(500).json({ message: 'Failed to create alliance' });
+    }
+  });
+
+  app.get("/api/alliances", async (_req, res) => {
+    try {
+      const alliances = await allianceManager.getAlliances();
+      res.json(alliances);
+    } catch (error) {
+      console.error('Error fetching alliances:', error);
+      res.status(500).json({ message: 'Failed to fetch alliances' });
+    }
+  });
 
   return httpServer;
 }
