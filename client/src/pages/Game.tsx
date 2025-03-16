@@ -24,42 +24,7 @@ import { MarketPriceChart } from '@/components/Market/MarketPriceChart';
 import { MarketPriceChartSelector } from '@/components/Market/MarketPriceChartSelector';
 import { MarketListings } from '@/components/Market/MarketListings';
 import { MarketTransactions } from '@/components/Market/MarketTransactions';
-import { MarketPanel } from "@/components/Market/MarketPanel";
-
-const MarketPanel = ({ open, onClose }) => {
-  // Обработчик успешного создания лота
-  const handleListingCreated = () => {
-    // Можно добавить логику обновления или уведомления
-    console.log('Лот успешно создан');
-  };
-
-  // Если панель не открыта, не рендерим содержимое
-  if (!open) {
-    return null;
-  }
-
-  const [selectedResource, setSelectedResource] = useState(''); // Added state for selected resource
-  const fetchGameState = () => {
-    //Implement fetching game state here.  Replace with your actual fetch logic.
-    console.log("Fetching game state...");
-  };
-
-  return (
-    <div 
-      className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[2000] transition-opacity ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-    >
-      <div className="bg-white rounded-lg p-6 w-3/4 max-w-5xl max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold">Рынок ресурсов</h1>
-          <button 
-            onClick={onClose}
-            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg"
-          >
-            Закрыть
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+import { MarketPanel } from "@/components/Market/MarketPanel";-1 md:grid-cols-2 gap-6">
           {/* Левая панель - создание лота */}
           <div className="md:col-span-1">
             <MarketCreateListing onSuccess={handleListingCreated} />
