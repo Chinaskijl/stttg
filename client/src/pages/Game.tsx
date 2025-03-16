@@ -54,7 +54,7 @@ const MarketCreatePanel = ({ onClose, open }) => {
           </div>
           
           <div className="md:col-span-1">
-            <MarketPriceChartSelector onResourceSelect={setSelectedResource} />
+            <MarketPriceChartSelector onResourceSelect={setSelectedResource} excludeResource="gold" />
           </div>
         </div>
 
@@ -65,9 +65,6 @@ const MarketCreatePanel = ({ onClose, open }) => {
     </div>
   );
 };
-          <div className="md:col-span-1">
-            <MarketPriceChartSelector onResourceSelect={setSelectedResource} excludeResource="gold"/> {/* Передаем функцию для установки выбранного ресурса */}
-          </div>
         </div>
 
         {/* Нижняя панель - список лотов */}
